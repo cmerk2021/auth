@@ -8,6 +8,7 @@ const err = document.getElementById("error")
 const form = document.querySelector("form");
 const username = document.getElementById("email");
 const password = document.getElementById("password");
+const password_confirm = document.getElementById("password-confirm")
 
 async function googleAuth() {
     try {
@@ -27,21 +28,40 @@ async function googleAuth() {
 form.addEventListener('submit', async (event) => {
     try {
 	event.preventDefault();
- 
-	const authData = await pb.collection('users').authWithPassword(
-        username.value,
-        password.value,
-    );
 
+        if (password.value === password_confirm.value) {
+            try {
+	        const data = {
+                "email": username.value,
+                "emailVisibility": true,
+                "password": password.value,
+                "passwordConfirm": password_confirm.value,
+            };
+            const record = await pb.collection('users').create(data);
+            if (record) {
+                alert("Authentication successful, please log in.") 
+                window.location.replace("../login")
+            }
+        } catch (error) {
+            err.innerHTML = "An unexpected error occurred. Check console for more information."
+            console.error(error)
+        }
+
+        } else {
+            err.innerHTML = "Username and passwords do not match."
+        }
+    
+    
     if (!redirect || !redirect.includes("https://")) {
         localStorage.setItem("error", "ERR_INVALID_REDIRECT")
         window.location = "../error"
     } else {
-        window.location = `${redirect}?token=${authData.token}`
+        window.location = `${redirect}?connormerk-auth=true?token=${authData.token}`
     }
     
     } catch (e) {
-        err.innerHTML = "Invalid username or password."
+        err.innerHTML = "An unexpected error occurred. Check console for more information."
+        console.error(e)
     }
 
 });

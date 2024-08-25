@@ -1,6 +1,5 @@
 const msg = document.getElementById("msg")
 const err = localStorage.getItem("error")
+localStorage.removeItem("error")
 
-if (err) {
-    msg.innerHTML = err
-}
+msg.innerHTML = err || "That's all we know."
